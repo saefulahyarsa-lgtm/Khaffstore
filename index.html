@@ -1,0 +1,550 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhoneStore ID - Jual Beli Handphone Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow-x: hidden; overflow-y: hidden; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+    <!-- NAVBAR -->
+    <nav class="bg-indigo-700 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="filterBrand('all')">
+                    <div class="bg-white text-indigo-700 p-2 rounded-xl shadow-md">
+                        <i class="fa-solid fa-mobile-screen-button text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight">PhoneStore<span class="text-yellow-400">.id</span></span>
+                </div>
+
+                <!-- Admin Action Button -->
+                <button onclick="openModal('adminModal')" class="bg-yellow-400 hover:bg-yellow-500 text-indigo-950 px-4 py-2 rounded-lg font-semibold text-sm transition duration-200 flex items-center shadow">
+                    <i class="fa-solid fa-plus-circle mr-2"></i> Kelola Etalase
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-10 px-4 shadow-inner">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-2">Pusat Jual Beli HP Original & Terpercaya</h1>
+            <p class="text-indigo-100 text-sm sm:text-base max-w-2xl mx-auto">Dapatkan smartphone impianmu dari berbagai merek ternama dengan harga terbaik dan proses transaksi kilat via WhatsApp!</p>
+            
+            <!-- Quick Info Badges -->
+            <div class="flex flex-wrap justify-center gap-3 mt-6 text-xs sm:text-sm">
+                <span class="bg-indigo-800/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center border border-indigo-400/30">
+                    <i class="fa-solid fa-shield-halved text-green-400 mr-2"></i> 100% Original
+                </span>
+                <span class="bg-indigo-800/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center border border-indigo-400/30">
+                    <i class="fa-brands fa-whatsapp text-green-400 mr-2"></i> Fast Response WA
+                </span>
+                <span class="bg-indigo-800/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center border border-indigo-400/30">
+                    <i class="fa-solid fa-wallet text-yellow-400 mr-2"></i> E-Wallet & Bank Transfer
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- Filter & Search Bar -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <!-- Search -->
+            <div class="relative w-full md:w-80">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Cari tipe atau jenis HP..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+            </div>
+
+            <!-- Brand Filter Buttons -->
+            <div class="flex flex-wrap gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" id="brandFilterContainer">
+                <!-- Dynamically Populated or Static Filters -->
+            </div>
+        </div>
+
+        <!-- Phone Catalog Grid -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fa-solid fa-store text-indigo-600 mr-2"></i> Etalase Handphone
+            </h2>
+            <span id="phoneCount" class="text-xs sm:text-sm text-gray-500 font-medium">Menampilkan 0 produk</span>
+        </div>
+
+        <div id="phoneGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Phone items rendered here by JavaScript -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <i class="fa-solid fa-mobile-xmark text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-lg font-bold text-gray-700">Tidak ada handphone ditemukan</h3>
+            <p class="text-gray-500 text-sm mt-1">Coba kata kunci lain atau tambahkan unit baru ke etalase.</p>
+        </div>
+    </main>
+
+    <!-- PAYMENT METHODS INFO SECTION -->
+    <section class="bg-white border-t border-gray-200 py-8 px-4 mt-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-6">Metode Pembayaran Resmi Kami</h3>
+            
+            <div class="flex flex-wrap justify-center items-center gap-6 sm:gap-10">
+                <!-- E-Wallet -->
+                <div class="flex items-center space-x-2 bg-blue-50 px-4 py-2 rounded-lg border border-blue-100">
+                    <i class="fa-solid fa-wallet text-blue-600 text-xl"></i>
+                    <span class="font-bold text-blue-900 text-sm">DANA</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-purple-50 px-4 py-2 rounded-lg border border-purple-100">
+                    <i class="fa-solid fa-coins text-purple-600 text-xl"></i>
+                    <span class="font-bold text-purple-900 text-sm">OVO</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-red-50 px-4 py-2 rounded-lg border border-red-100">
+                    <i class="fa-solid fa-qrcode text-red-600 text-xl"></i>
+                    <span class="font-bold text-red-900 text-sm">QRIS</span>
+                </div>
+
+                <!-- Bank Transfer -->
+                <div class="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg">
+                    <i class="fa-solid fa-building-columns text-blue-800 text-xl"></i>
+                    <span class="font-bold text-gray-800 text-sm">BRI</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg">
+                    <i class="fa-solid fa-building-columns text-blue-600 text-xl"></i>
+                    <span class="font-bold text-gray-800 text-sm">BCA</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg">
+                    <i class="fa-solid fa-building-columns text-yellow-600 text-xl"></i>
+                    <span class="font-bold text-gray-800 text-sm">MANDIRI</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg">
+                    <i class="fa-solid fa-building-columns text-teal-600 text-xl"></i>
+                    <span class="font-bold text-gray-800 text-sm">BJB</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 PhoneStore.id - Hak Cipta Dilindungi. Jual Beli HP Mudah & Praktis.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL 1: ADD NEW PHONE (ADMIN ETALASE) -->
+    <div id="adminModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+            <div class="bg-indigo-700 px-6 py-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-lg flex items-center">
+                    <i class="fa-solid fa-plus-circle mr-2"></i> Tambah Handphone Ke Etalase
+                </h3>
+                <button onclick="closeModal('adminModal')" class="text-white hover:text-gray-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="addPhoneForm" onsubmit="handleAddPhone(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Merek / Brand</label>
+                    <input type="text" id="inputBrand" placeholder="Contoh: Samsung, Apple, Xiaomi, Vivo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipe / Model Handphone</label>
+                    <input type="text" id="inputModel" placeholder="Contoh: Galaxy S24 Ultra, iPhone 15 Pro" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Kondisi</label>
+                        <select id="inputCondition" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                            <option value="Baru (BNIB)">Baru (BNIB)</option>
+                            <option value="Bekas (Second Mulus)">Bekas (Second Mulus)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Harga (Rp)</label>
+                        <input type="number" id="inputPrice" placeholder="5000000" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Spesifikasi Singkat</label>
+                    <textarea id="inputSpecs" rows="2" placeholder="RAM 8GB / 256GB, Chipset Snapdragon 8 Gen 3, Garansi Resmi" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">URL Foto Produk (Opsional)</label>
+                    <input type="url" id="inputImage" placeholder="https://..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                    <p class="text-xs text-gray-400 mt-1">*Jika dikosongkan akan menggunakan gambar default.</p>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('adminModal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow">Simpan Ke Etalase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ORDER VIA WHATSAPP -->
+    <div id="orderModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+            <div class="bg-green-600 px-6 py-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-lg flex items-center">
+                    <i class="fa-brands fa-whatsapp text-2xl mr-2"></i> Form Order WhatsApp
+                </h3>
+                <button onclick="closeModal('orderModal')" class="text-white hover:text-gray-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="orderForm" onsubmit="handleSendOrder(event)" class="p-6 space-y-4">
+                <!-- Selected Product Preview -->
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center space-x-3">
+                    <img id="orderImg" src="" alt="HP" class="w-12 h-12 object-contain rounded">
+                    <div>
+                        <h4 id="orderPhoneTitle" class="font-bold text-sm text-gray-800"></h4>
+                        <p id="orderPhonePrice" class="text-xs font-semibold text-indigo-600"></p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nama Pembeli</label>
+                    <input type="text" id="buyerName" placeholder="Masukkan nama lengkap Anda" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Alamat Pengiriman</label>
+                    <textarea id="buyerAddress" rows="2" placeholder="Alamat lengkap tujuan pengiriman" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-sm"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Pilih Metode Pembayaran</label>
+                    <select id="paymentMethod" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-sm">
+                        <optgroup label="E-Wallet">
+                            <option value="DANA">DANA</option>
+                            <option value="OVO">OVO</option>
+                            <option value="QRIS">QRIS All Payment</option>
+                        </optgroup>
+                        <optgroup label="Transfer Bank">
+                            <option value="Bank BRI">Bank BRI</option>
+                            <option value="Bank BCA">Bank BCA</option>
+                            <option value="Bank Mandiri">Bank Mandiri</option>
+                            <option value="Bank BJB">Bank BJB</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Catatan Tambahan (Opsional)</label>
+                    <input type="text" id="buyerNotes" placeholder="Warna, varian, atau instruksi pengiriman" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-sm">
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('orderModal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 shadow flex items-center">
+                        <i class="fa-brands fa-whatsapp mr-2 text-lg"></i> Kirim Pesanan WA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Store WhatsApp Number (In International Format without '+')
+        const STORE_WA_NUMBER = "6289519201";
+
+        // Initial Sample Handphone Data
+        let phones = [
+            {
+                id: 1,
+                brand: "Apple",
+                model: "iPhone 15 Pro Max",
+                condition: "Baru (BNIB)",
+                price: 21999000,
+                specs: "Titanium design, A17 Pro Chip, 256GB, Kamera 48MP Zoom 5x",
+                image: "https://placehold.co/400x400/0f172a/ffffff?text=iPhone+15+Pro"
+            },
+            {
+                id: 2,
+                brand: "Samsung",
+                model: "Galaxy S24 Ultra",
+                condition: "Baru (BNIB)",
+                price: 19499000,
+                specs: "Snapdragon 8 Gen 3, 12GB RAM / 256GB, S-Pen, AI Features",
+                image: "https://placehold.co/400x400/1e293b/ffffff?text=Galaxy+S24+Ultra"
+            },
+            {
+                id: 3,
+                brand: "Xiaomi",
+                model: "Xiaomi 14",
+                condition: "Baru (BNIB)",
+                price: 11999000,
+                specs: "Leica Optical Lens, Snapdragon 8 Gen 3, 12GB RAM / 512GB",
+                image: "https://placehold.co/400x400/f97316/ffffff?text=Xiaomi+14"
+            },
+            {
+                id: 4,
+                brand: "Vivo",
+                model: "Vivo X100 Pro",
+                condition: "Bekas (Second Mulus)",
+                price: 13500000,
+                specs: "ZEISS Camera APO, Dimensity 9300, RAM 16GB / 512GB, Mulus 98%",
+                image: "https://placehold.co/400x400/0284c7/ffffff?text=Vivo+X100+Pro"
+            },
+            {
+                id: 5,
+                brand: "Oppo",
+                model: "Oppo Reno 11 Pro 5G",
+                condition: "Baru (BNIB)",
+                price: 8499000,
+                specs: "Portrait Camera 32MP Tele, 80W SuperVOOC, 12GB RAM / 512GB",
+                image: "https://placehold.co/400x400/10b981/ffffff?text=Oppo+Reno+11"
+            },
+            {
+                id: 6,
+                brand: "Realme",
+                model: "Realme GT 6",
+                condition: "Baru (BNIB)",
+                price: 7999000,
+                specs: "Snapdragon 8s Gen 3, Ultra-bright Display 6000 nits, 120W Charge",
+                image: "https://placehold.co/400x400/eab308/ffffff?text=Realme+GT+6"
+            }
+        ];
+
+        let activeBrandFilter = "all";
+        let selectedPhoneForOrder = null;
+
+        // Format Currency to IDR
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        // Modal Controls
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('modal-active');
+        }
+
+        // Render Brand Filter Buttons
+        function renderBrandFilters() {
+            const container = document.getElementById('brandFilterContainer');
+            // Extract Unique Brands
+            const brands = ['all', ...new Set(phones.map(p => p.brand.trim()))];
+
+            container.innerHTML = brands.map(brand => {
+                const isActive = activeBrandFilter.toLowerCase() === brand.toLowerCase();
+                const activeClass = isActive 
+                    ? 'bg-indigo-600 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200';
+                const label = brand === 'all' ? 'Semua Merek' : brand;
+                
+                return `
+                    <button onclick="filterBrand('${brand}')" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition duration-200 whitespace-nowrap ${activeClass}">
+                        ${label}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function filterBrand(brand) {
+            activeBrandFilter = brand;
+            renderBrandFilters();
+            applyFilters();
+        }
+
+        // Filter & Render Phone Grid
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = phones.filter(phone => {
+                const matchBrand = activeBrandFilter === 'all' || phone.brand.toLowerCase() === activeBrandFilter.toLowerCase();
+                const matchSearch = phone.model.toLowerCase().includes(searchQuery) || 
+                                    phone.brand.toLowerCase().includes(searchQuery) ||
+                                    phone.specs.toLowerCase().includes(searchQuery);
+                return matchBrand && matchSearch;
+            });
+
+            renderGrid(filtered);
+        }
+
+        // Render Product Cards
+        function renderGrid(data) {
+            const grid = document.getElementById('phoneGrid');
+            const emptyState = document.getElementById('emptyState');
+            const phoneCount = document.getElementById('phoneCount');
+
+            phoneCount.innerText = `Menampilkan ${data.length} unit`;
+
+            if (data.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = data.map(phone => {
+                const isNew = phone.condition.includes('Baru');
+                const badgeColor = isNew ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+
+                return `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-300 flex flex-col justify-between">
+                        <div>
+                            <!-- Phone Image Container -->
+                            <div class="relative bg-gray-50 p-6 flex items-center justify-center h-52">
+                                <span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full ${badgeColor}">
+                                    ${phone.condition}
+                                </span>
+                                <button onclick="deletePhone(${phone.id})" title="Hapus dari Etalase" class="absolute top-3 right-3 bg-red-100 hover:bg-red-200 text-red-600 p-2 rounded-full text-xs transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                                <img src="${phone.image}" alt="${phone.model}" class="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105" onerror="this.src='https://placehold.co/400x400/cbd5e1/475569?text=Handphone'">
+                            </div>
+
+                            <!-- Phone Details -->
+                            <div class="p-5">
+                                <span class="text-xs font-semibold uppercase text-indigo-600 tracking-wider">${phone.brand}</span>
+                                <h3 class="font-bold text-gray-800 text-base mt-0.5 line-clamp-1">${phone.model}</h3>
+                                <p class="text-xs text-gray-500 mt-2 line-clamp-2 min-h-[32px]">${phone.specs || 'Spesifikasi tidak tersedia.'}</p>
+                                
+                                <div class="mt-4 pt-3 border-t border-gray-100">
+                                    <span class="text-xs text-gray-400 block">Harga Cash</span>
+                                    <span class="text-lg font-extrabold text-indigo-700">${formatRupiah(phone.price)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="p-5 pt-0">
+                            <button onclick="openOrderModal(${phone.id})" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
+                                <i class="fa-brands fa-whatsapp text-lg mr-2"></i> Beli via WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Add New Handphone Logic
+        function handleAddPhone(e) {
+            e.preventDefault();
+
+            const brand = document.getElementById('inputBrand').value.trim();
+            const model = document.getElementById('inputModel').value.trim();
+            const condition = document.getElementById('inputCondition').value;
+            const price = parseFloat(document.getElementById('inputPrice').value);
+            const specs = document.getElementById('inputSpecs').value.trim();
+            let image = document.getElementById('inputImage').value.trim();
+
+            if (!image) {
+                image = `https://placehold.co/400x400/3b82f6/ffffff?text=${encodeURIComponent(model)}`;
+            }
+
+            const newPhone = {
+                id: Date.now(),
+                brand,
+                model,
+                condition,
+                price,
+                specs,
+                image
+            };
+
+            phones.unshift(newPhone); // Add to beginning of array
+            renderBrandFilters();
+            applyFilters();
+            closeModal('adminModal');
+
+            // Reset Form
+            document.getElementById('addPhoneForm').reset();
+        }
+
+        // Delete Handphone Logic
+        function deletePhone(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus unit ini dari etalase?")) {
+                phones = phones.filter(p => p.id !== id);
+                renderBrandFilters();
+                applyFilters();
+            }
+        }
+
+        // Open Order Modal
+        function openOrderModal(phoneId) {
+            selectedPhoneForOrder = phones.find(p => p.id === phoneId);
+            if (!selectedPhoneForOrder) return;
+
+            document.getElementById('orderPhoneTitle').innerText = `${selectedPhoneForOrder.brand} ${selectedPhoneForOrder.model}`;
+            document.getElementById('orderPhonePrice').innerText = formatRupiah(selectedPhoneForOrder.price);
+            document.getElementById('orderImg').src = selectedPhoneForOrder.image;
+
+            openModal('orderModal');
+        }
+
+        // Send WhatsApp Message Logic
+        function handleSendOrder(e) {
+            e.preventDefault();
+
+            if (!selectedPhoneForOrder) return;
+
+            const name = document.getElementById('buyerName').value.trim();
+            const address = document.getElementById('buyerAddress').value.trim();
+            const payment = document.getElementById('paymentMethod').value;
+            const notes = document.getElementById('buyerNotes').value.trim() || '-';
+
+            // Construct WhatsApp Message
+            const message = 
+`*Halo Admin PhoneStore.id, saya ingin memesan handphone:*
+
+📱 *DETAIL PRODUK*
+• *Model:* ${selectedPhoneForOrder.brand} ${selectedPhoneForOrder.model}
+• *Kondisi:* ${selectedPhoneForOrder.condition}
+• *Harga:* ${formatRupiah(selectedPhoneForOrder.price)}
+
+👤 *DATA PEMBELI*
+• *Nama:* ${name}
+• *Alamat Pengiriman:* ${address}
+• *Metode Pembayaran:* ${payment}
+• *Catatan:* ${notes}
+
+Mohon diproses pesanannya. Terima kasih!`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const waUrl = `https://wa.me/${STORE_WA_NUMBER}?text=${encodedMessage}`;
+
+            // Open WhatsApp in new tab
+            window.open(waUrl, '_blank');
+
+            // Reset and close
+            closeModal('orderModal');
+            document.getElementById('orderForm').reset();
+        }
+
+        // Initialize App on Page Load
+        window.onload = function() {
+            renderBrandFilters();
+            applyFilters();
+        };
+    </script>
+</body>
+</html>
+```
